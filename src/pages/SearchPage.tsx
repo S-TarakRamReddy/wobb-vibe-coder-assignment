@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import type { Platform } from "@/types";
 import { Layout } from "@/components/Layout";
@@ -15,8 +16,8 @@ export function SearchPage() {
     
   const searchQuery = searchParams.get("q") || "";
 
-  const allProfiles = extractProfiles(platform);
-  const filtered = filterProfiles(allProfiles, searchQuery);
+  const allProfiles = useMemo(() => extractProfiles(platform), [platform]);
+  const filtered = useMemo(() => filterProfiles(allProfiles, searchQuery), [allProfiles, searchQuery]);
 
   const handleProfileClick = () => {
     // Empty as ProfileList requires onProfileClick prop, but tracking is unnecessary

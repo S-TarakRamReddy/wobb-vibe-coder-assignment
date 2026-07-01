@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import type { Platform } from "@/types";
 import { PLATFORMS, getPlatformLabel } from "@/utils/dataHelpers";
 import { Search } from "lucide-react";
@@ -17,6 +18,24 @@ export function PlatformFilter({
   searchQuery,
   onSearchChange,
 }: PlatformFilterProps) {
+  const [localQuery, setLocalQuery] = useState(searchQuery);
+
+  // Sync incoming search query (from URL) to local state if they diverge and user isn't typing
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setLocalQuery(searchQuery);
+  }, [searchQuery]);
+
+  // Debounce local query to parent
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (localQuery !== searchQuery) {
+        onSearchChange(localQuery);
+      }
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [localQuery, onSearchChange, searchQuery]);
+
   return (
     <div className="flex flex-col gap-6 w-full">
       {/* Search Input */}
@@ -26,8 +45,8 @@ export function PlatformFilter({
         </div>
         <input
           type="text"
-          value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
+          value={localQuery}
+          onChange={(e) => setLocalQuery(e.target.value)}
           placeholder="Search by username or name..."
           className="block w-full pl-11 pr-4 py-3.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm transition-all text-base"
         />

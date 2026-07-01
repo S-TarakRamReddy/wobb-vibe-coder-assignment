@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import type { Platform, UserProfileSummary } from "@/types";
 import { VerifiedBadge } from "./VerifiedBadge";
-import { useStore } from "@/store/useStore";
+import { useShortlist } from "@/hooks/useShortlist";
+import { formatFollowers } from "@/utils/formatters";
 import { motion } from "framer-motion";
 import { Bookmark, Check, Users } from "lucide-react";
 import { cn } from "@/utils/cn";
@@ -13,12 +14,6 @@ interface ProfileCardProps {
   onProfileClick?: (username: string) => void;
 }
 
-function formatFollowersLocal(count: number) {
-  if (count >= 1000000) return (count / 1000000).toFixed(1) + "M";
-  if (count >= 1000) return (count / 1000).toFixed(0) + "K";
-  return String(count);
-}
-
 export function ProfileCard({
   profile,
   platform,
@@ -27,11 +22,7 @@ export function ProfileCard({
 }: ProfileCardProps) {
   const navigate = useNavigate();
   
-  const isSaved = useStore((state) => 
-    state.savedProfiles.some((p) => p.username === profile.username)
-  );
-  const addProfile = useStore((state) => state.addProfile);
-  const removeProfile = useStore((state) => state.removeProfile);
+  const { isSaved, toggleSave } = useShortlist(profile);
 
   const handleClick = () => {
     if (onProfileClick) onProfileClick(profile.username);
@@ -40,11 +31,7 @@ export function ProfileCard({
 
   const handleToggleSave = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (isSaved) {
-      removeProfile(profile.username);
-    } else {
-      addProfile(profile);
-    }
+    toggleSave();
   };
 
   return (
@@ -98,7 +85,7 @@ export function ProfileCard({
       <div className="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between text-sm">
         <div className="flex items-center gap-1.5 text-slate-600 font-medium">
           <Users className="w-4 h-4 text-slate-400" />
-          {formatFollowersLocal(profile.followers)} followers
+          {formatFollowers(profile.followers)} followers
         </div>
         <div className="text-indigo-600 font-semibold group-hover:underline">
           View Profile →

@@ -1,7 +1,7 @@
 import { useStore } from "@/store/useStore";
 import { VerifiedBadge } from "./VerifiedBadge";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Trash2, Users } from "lucide-react";
+import { X, Trash2, Users, Bookmark } from "lucide-react";
 
 interface ShortlistSidebarProps {
   isOpen: boolean;
@@ -57,7 +57,7 @@ export function ShortlistSidebar({ isOpen, onClose }: ShortlistSidebarProps) {
                     className="flex flex-col items-center justify-center h-full text-center text-slate-500 pb-20"
                   >
                     <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
-                      <BookmarkIcon className="w-8 h-8 text-slate-300" />
+                      <Bookmark className="w-8 h-8 text-slate-300" />
                     </div>
                     <p className="font-semibold text-slate-700 mb-1">Your shortlist is empty</p>
                     <p className="text-sm max-w-[200px]">Save profiles you like to compare and track them here.</p>
@@ -118,22 +118,3 @@ export function ShortlistSidebar({ isOpen, onClose }: ShortlistSidebarProps) {
   );
 }
 
-// Simple internal icon for empty state
-function BookmarkIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
-    </svg>
-  );
-}

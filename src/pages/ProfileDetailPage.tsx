@@ -2,19 +2,13 @@ import { useEffect, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
-import type { FullUserProfile, ProfileDetailResponse } from "@/types";
-import { formatEngagementRate } from "@/utils/formatters";
+import type { ProfileDetailResponse } from "@/types";
+import { formatEngagementRate, formatFollowers } from "@/utils/formatters";
 import { loadProfileByUsername } from "@/utils/profileLoader";
-import { useStore } from "@/store/useStore";
+import { useShortlist } from "@/hooks/useShortlist";
 import { ArrowLeft, Check, Bookmark, ExternalLink, Activity, Users, Eye, MessageCircle, Heart, FileText } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { motion } from "framer-motion";
-
-function formatFollowersDetail(count: number) {
-  if (count >= 1000000) return (count / 1000000).toFixed(2) + "M";
-  if (count >= 1000) return (count / 1000).toFixed(1) + "K";
-  return String(count);
-}
 
 export function ProfileDetailPage() {
   const { username } = useParams<{ username: string }>();
@@ -23,12 +17,12 @@ export function ProfileDetailPage() {
   const q = searchParams.get("q") || "";
   const backLink = `/?platform=${platform}${q ? `&q=${encodeURIComponent(q)}` : ""}`;
   
-  const savedProfiles = useStore((state) => state.savedProfiles);
-  const addProfile = useStore((state) => state.addProfile);
-  const removeProfile = useStore((state) => state.removeProfile);
-
   const [profileData, setProfileData] = useState<ProfileDetailResponse | null>(null);
   const [loaded, setLoaded] = useState(false);
+
+  // Call hooks at the top level
+  const user = profileData?.data?.user_profile;
+  const { isSaved, toggleSave } = useShortlist(user);
 
   useEffect(() => {
     if (!username) return;
@@ -59,7 +53,7 @@ export function ProfileDetailPage() {
     );
   }
 
-  if (!profileData) {
+  if (!profileData || !user) {
     return (
       <Layout title={`@${username}`}>
         <div className="flex flex-col items-center justify-center py-20 text-slate-500">
@@ -72,21 +66,13 @@ export function ProfileDetailPage() {
     );
   }
 
-  const user: FullUserProfile = profileData.data.user_profile;
-  const isSaved = savedProfiles.some((p) => p.username === user.username);
-
-  const handleToggleSave = () => {
-    if (isSaved) removeProfile(user.username);
-    else addProfile(user);
-  };
-
   const statCards = [
-    { label: "Followers", value: formatFollowersDetail(user.followers), icon: Users },
+    { label: "Followers", value: formatFollowers(user.followers, 2), icon: Users },
     { label: "Engagement", value: user.engagement_rate !== undefined ? formatEngagementRate(user.engagement_rate) : "N/A", icon: Activity },
     ...(user.posts_count !== undefined ? [{ label: "Posts", value: user.posts_count, icon: FileText }] : []),
-    ...(user.avg_likes !== undefined ? [{ label: "Avg Likes", value: formatFollowersDetail(user.avg_likes), icon: Heart }] : []),
-    ...(user.avg_comments !== undefined ? [{ label: "Avg Comments", value: user.avg_comments, icon: MessageCircle }] : []),
-    ...(user.avg_views !== undefined && user.avg_views > 0 ? [{ label: "Avg Views", value: formatFollowersDetail(user.avg_views), icon: Eye }] : []),
+    ...(user.avg_likes !== undefined ? [{ label: "Avg Likes", value: formatFollowers(user.avg_likes, 2), icon: Heart }] : []),
+    ...(user.avg_comments !== undefined ? [{ label: "Avg Comments", value: formatFollowers(user.avg_comments, 2), icon: MessageCircle }] : []),
+    ...(user.avg_views !== undefined && user.avg_views > 0 ? [{ label: "Avg Views", value: formatFollowers(user.avg_views, 2), icon: Eye }] : []),
   ];
 
   return (
@@ -130,7 +116,7 @@ export function ProfileDetailPage() {
                   </a>
                 )}
                 <button
-                  onClick={handleToggleSave}
+                  onClick={toggleSave}
                   className={cn(
                     "flex items-center gap-2 px-6 py-2.5 text-sm font-medium rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 w-40 justify-center group",
                     isSaved 
