@@ -5,6 +5,7 @@ import { VerifiedBadge } from "@/components/VerifiedBadge";
 import type { FullUserProfile, ProfileDetailResponse } from "@/types";
 import { formatEngagementRate } from "@/utils/formatters";
 import { loadProfileByUsername } from "@/utils/profileLoader";
+import { useStore } from "@/store/useStore";
 
 function formatFollowersDetail(count: number) {
   if (count >= 1000000) return (count / 1000000).toFixed(2) + "M";
@@ -19,6 +20,10 @@ export function ProfileDetailPage() {
   const q = searchParams.get("q") || "";
   const backLink = `/?platform=${platform}${q ? `&q=${encodeURIComponent(q)}` : ""}`;
   
+  const savedProfiles = useStore((state) => state.savedProfiles);
+  const addProfile = useStore((state) => state.addProfile);
+  const removeProfile = useStore((state) => state.removeProfile);
+
   const [profileData, setProfileData] = useState<ProfileDetailResponse | null>(
     null
   );
@@ -64,6 +69,12 @@ export function ProfileDetailPage() {
   }
 
   const user: FullUserProfile = profileData.data.user_profile;
+  const isSaved = savedProfiles.some((p) => p.username === user.username);
+
+  const handleToggleSave = () => {
+    if (isSaved) removeProfile(user.username);
+    else addProfile(user);
+  };
 
   return (
     <Layout title={user.fullname}>
@@ -145,19 +156,29 @@ export function ProfileDetailPage() {
             <a
               href={user.url}
               target="_blank"
+              rel="noreferrer"
               className="inline-block mt-4 text-blue-600 text-sm"
             >
               View on platform →
             </a>
           )}
 
-          {/* TODO: candidates must implement Add to List feature */}
-          {/* TODO: candidates must implement Add to List feature */}
           <button
-            disabled
-            className="block mt-4 px-4 py-2 bg-gray-300 text-gray-500 rounded cursor-not-allowed"
+            onClick={handleToggleSave}
+            className={`block mt-4 px-6 py-2.5 font-medium rounded-lg transition-colors w-40 ${
+              isSaved 
+                ? "bg-green-100 text-green-700 hover:bg-red-100 hover:text-red-700 group" 
+                : "bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm"
+            }`}
           >
-            Add to List
+            {isSaved ? (
+              <>
+                <span className="group-hover:hidden">Added ✓</span>
+                <span className="hidden group-hover:inline">Remove</span>
+              </>
+            ) : (
+              "Add to List"
+            )}
           </button>
         </div>
       </div>
