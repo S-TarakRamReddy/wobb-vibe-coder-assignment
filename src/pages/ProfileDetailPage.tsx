@@ -26,10 +26,17 @@ export function ProfileDetailPage() {
 
   useEffect(() => {
     if (!username) return;
-    loadProfileByUsername(username).then((data) => {
-      setProfileData(data);
-      setLoaded(true);
-    });
+    loadProfileByUsername(username)
+      .then((data) => {
+        setProfileData(data);
+      })
+      .catch((err) => {
+        console.error("Failed to load profile:", err);
+        setProfileData(null);
+      })
+      .finally(() => {
+        setLoaded(true);
+      });
   }, [username]);
 
   if (!username) {
