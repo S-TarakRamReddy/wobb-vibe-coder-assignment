@@ -1,80 +1,104 @@
-# Wobb Frontend Assignment
+# InfluencerHQ (Wobb Frontend Assignment)
 
-A starter influencer search application built with **React**, **TypeScript**, **Vite**, and **Tailwind CSS**. This project is intentionally left in a rough-but-working state for candidates to improve.
+![InfluencerHQ Banner](https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=2000&auto=format&fit=crop)
 
-## Getting Started
+A production-quality React + TypeScript application for discovering, analyzing, and shortlisting top creators across Instagram, TikTok, and YouTube. Built as a comprehensive frontend engineering demonstration for Wobb.
 
+## 🚀 Deployment
+
+**Live Demo:** [https://influencerhq-wobb-demo.vercel.app](https://influencerhq-wobb-demo.vercel.app) *(Deploy via Vercel GitHub Integration)*
+
+---
+
+## ✨ Features
+
+- **Influencer Search & Discovery**: Browse through detailed influencer profiles dynamically generated from mock JSON datasets.
+- **Platform Filtering**: Filter creators specifically by Instagram, YouTube, or TikTok with animated, responsive controls.
+- **Profile Analytics**: Deep-dive into detailed creator statistics (Followers, Engagement, Avg Likes, Avg Comments) presented in a beautiful SaaS-style UI.
+- **Persistent Shortlist**: Save profiles to a persistent shortlist sidebar. Your saved creators remain available even after refreshing the page, powered by Zustand and LocalStorage.
+- **Modern SaaS Dashboard Design**: Clean typography, subtle glassmorphic headers, smooth hover micro-interactions, and accessible focus states designed for B2B usability.
+- **Performance Optimized**: Debounced search inputs, memoized derived state, and heavily optimized CSS.
+
+---
+
+## 🛠 Tech Stack & Engineering Choices
+
+### Core Technologies
+- **React 19 & Vite 8**: Chosen for an ultra-fast local development environment and highly optimized production builds.
+- **TypeScript**: Strictly typed interfaces for all components and API responses to eliminate runtime exceptions and improve developer experience.
+- **Tailwind CSS v4**: Utility-first CSS for rapid, scalable UI development without the overhead of massive CSS-in-JS runtimes.
+
+### Key Libraries
+- **Zustand**: Selected over React Context for global state management (the Shortlist). It prevents unnecessary re-renders, provides an incredibly simple API, and includes a built-in `persist` middleware to synchronize state to LocalStorage automatically.
+- **Framer Motion**: Handles complex micro-interactions, such as the active platform indicator sliding, modal entry/exit, and smooth card hover lifts.
+- **Lucide React**: A beautiful, consistent, and highly optimized SVG icon library.
+- **clsx & tailwind-merge**: Used to create a `cn()` utility for safely merging dynamic Tailwind classes without specificity conflicts.
+
+---
+
+## 🏗 Architecture & Data Flow
+
+### State Management Separation
+A deliberate decision was made to strictly separate **URL State** from **Global State**:
+1. **URL State (React Router `useSearchParams`)**: Search queries and active platform filters are stored purely in the URL. This ensures that search results are perfectly shareable, deep-linkable, and natively support the browser's back/forward navigation.
+2. **Global State (Zustand)**: The Shortlist is stored in Zustand. This allows the sidebar and profile cards (across any page) to reactively sync to saved profiles without prop drilling.
+
+### Folder Structure
+```text
+src/
+├── assets/         # Static assets and mock JSON data
+├── components/     # Reusable UI building blocks (Cards, Layouts, Filters)
+├── hooks/          # Custom React hooks (e.g., useShortlist)
+├── pages/          # Top-level route components (SearchPage, ProfileDetailPage)
+├── store/          # Zustand global state definitions
+├── types/          # TypeScript interface definitions
+└── utils/          # Pure functions (data helpers, formatters, class mergers)
+```
+
+---
+
+## ⚡ Performance Improvements
+
+- **Debounced Search**: The search input utilizes a 300ms debounce. This prevents the URL from updating (and therefore the entire page from re-rendering and filtering arrays) on every single keystroke.
+- **Component Memoization**: Array filtering functions inside `SearchPage` are wrapped in `useMemo` to prevent expensive re-evaluations during unrelated state changes.
+- **Zustand Granular Subscriptions**: The custom `useShortlist` hook utilizes atomic Zustand selectors, ensuring that when one profile is saved, only that specific card re-renders, rather than re-rendering the entire feed.
+
+---
+
+## ♿ Accessibility (a11y)
+
+- **Semantic HTML**: Proper use of `<header>`, `<main>`, `<h2>`, and `<nav>` elements.
+- **Keyboard Navigation**: Every interactive element (inputs, filter pills, save buttons) utilizes high-contrast `focus:ring` states for visibility when navigating via keyboard.
+- **ARIA Attributes**: Icon-only buttons (like the sidebar close button or the Shortlist delete icons) include descriptive `aria-label` tags for screen readers.
+
+---
+
+## 🔮 Future Improvements
+
+If this were moving into active production, the following enhancements would be prioritized:
+1. **TanStack Query (React Query)**: Replacing the manual `useEffect` data loading with React Query to handle caching, background refetching, and complex loading/error states.
+2. **E2E Testing**: Implementing Playwright or Cypress to automate the testing of the persistent Shortlist workflows.
+3. **Pagination/Virtualization**: Implementing infinite scrolling (e.g., via `@tanstack/react-virtual`) if the JSON datasets scale beyond a few hundred records.
+
+---
+
+## 💻 Local Development
+
+### Installation
+Clone the repository and install dependencies (Note: `--legacy-peer-deps` may be required due to legacy drag-and-drop packages):
 ```bash
-npm install
+npm install --legacy-peer-deps
+```
+
+### Running the App
+Start the Vite development server:
+```bash
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173) to view the app.
-
-## What's Included
-
-- **Search / Dashboard** — filter influencers by platform (Instagram, YouTube, TikTok) and search by username or full name
-- **Profile Details** — click a profile to view extended data loaded from individual JSON files
-- **Routing** — `react-router-dom` with `/` (search) and `/profile/:username` (details)
-
-Sample data lives in:
-
-- `src/assets/data/search/` — platform search results (10 profiles each)
-- `src/assets/data/profiles/` — detailed profile JSON per username
-
-## How to Submit
-
-1. **Download or clone** this starter project to your machine.
-2. **Create a new repository** on your own GitHub account. Do not fork the original assignment repo — push your work to a repo you own.
-3. Complete the tasks below and push your changes to that repository.
-4. **Share the public GitHub repository URL** with us as your submission.
-
-### Deadline (strict)
-
-- **Due:** **2 July 2026, 2:00 PM IST** (Indian Standard Time, UTC+5:30)
-- **Any git commits made after this deadline will disqualify your submission.** We will only consider the repository state as of the deadline; late commits will not be reviewed.
-- Make sure your final work is pushed **before** the cutoff.
-
-## AI Usage
-
-You may use any AI tools (Cursor, ChatGPT, Claude, GitHub Copilot, etc.). We are evaluating your final solution and engineering decisions.
-
-## Your Tasks
-
-Complete the following as part of your submission:
-
-1. **Find and fix all bugs and quality issues** — the codebase contains intentional bugs and quality issues. Identify and resolve them.
-
-2. **Completely redesign the UI/UX** — replace the basic layout with a polished, modern interface. Focus on usability, visual hierarchy, and delight.
-
-3. **Replace React Context with Zustand** — when you implement state management for the selected list, use [Zustand](https://github.com/pmndrs/zustand) instead of React Context.
-
-4. **Implement "Select profile & Add to List"** — the disabled "Add to List" button is a stub. Build the full feature:
-   - Select / add profiles to a persistent list
-   - View and manage the selected list
-   - Handle duplicates appropriately
-
-5. **Improve code quality and project structure** — refactor as needed, add proper types, and follow React best practices.
-
-6. **Optimize performance** — apply sensible optimizations where appropriate.
-
-7. **Use any libraries you need** — you are not limited to the current stack. Choose tools that help you deliver a great result (UI kits, state managers, testing libraries, etc.).
-
-## Scripts
-
-| Command        | Description              |
-| -------------- | ------------------------ |
-| `npm run dev`  | Start development server |
-| `npm run build`| Production build         |
-| `npm run lint` | Run ESLint               |
-
-## Submission Notes
-
-- Document any assumptions or trade-offs in your README
-- Ensure `npm run build` passes before submitting
-- Focus on demonstrating your judgment — not every possible feature needs to be built, but the core assignment items should be addressed thoughtfully
-- Double-check that your repo is public (or that we have access) and that the link is included in your submission
-- Please make meaningful commits throughout your work. We may review your commit history.
-- **Bonus:** Deploying the app (e.g. Vercel, Netlify, GitHub Pages) is optional but will be considered a plus — include the live URL in your submission if you do
-
-Good luck!
+### Building for Production
+Ensure all types and linting rules pass before building:
+```bash
+npm run lint
+npm run build
+```
