@@ -11,6 +11,7 @@ export async function loadProfileByUsername(
   const path = `../assets/data/profiles/${username}.json`;
   const loader = profileModules[path];
 
+  // 1. Use the real detailed JSON file if it exists
   if (loader) {
     const result = await loader();
     const data =
@@ -18,24 +19,33 @@ export async function loadProfileByUsername(
     return data as ProfileDetailResponse;
   }
 
-  // Fallback: construct mock data from the search lists if file is missing
+  // 2. Fallback: construct a mock profile from the search list data for
+  //    any username that has no dedicated profile JSON file.
+  //    Guard against undefined usernames (YouTube uses `handle` instead).
+  const lowerUsername = username.toLowerCase();
   for (const platform of PLATFORMS) {
     const profiles = extractProfiles(platform);
-    const found = profiles.find((p) => p.username.toLowerCase() === username.toLowerCase());
+    const found = profiles.find((p) => {
+      const uname = (p.username ?? p.handle ?? "").toLowerCase();
+      return uname === lowerUsername;
+    });
     if (found) {
+      const followers = found.followers ?? 0;
       return {
         cached: true,
         data: {
           success: true,
           user_profile: {
             ...found,
+            // Normalise username — YouTube profiles use `handle`, not `username`
+            username: found.username ?? found.handle ?? username,
             type: platform,
-            description: "Mock description automatically generated because detailed JSON data was missing from the assignment starter repository.",
-            posts_count: Math.floor(Math.random() * 500) + 50,
-            avg_likes: Math.floor(found.followers * 0.05),
-            avg_comments: Math.floor(found.followers * 0.001),
-          }
-        }
+            description: undefined,
+            posts_count: undefined,
+            avg_likes: Math.floor(followers * 0.03),
+            avg_comments: Math.floor(followers * 0.001),
+          },
+        },
       };
     }
   }
