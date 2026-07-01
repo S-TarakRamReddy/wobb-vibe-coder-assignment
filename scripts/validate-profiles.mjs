@@ -23,9 +23,15 @@ const profileFiles = new Set(readdirSync(join(dataDir, "profiles")));
 
 function getProfiles(data, platform) {
   return data.accounts
-    .map(a => a?.account?.user_profile)
-    .filter(p => p && p.username)
-    .map(p => ({ ...p, platform }));
+    .map(a => {
+      const p = a?.account?.user_profile;
+      if (!p) return null;
+      // Mirror the normalization in extractProfiles: use handle when username is missing
+      const username = p.username || p.handle || null;
+      if (!username) return null;
+      return { ...p, username, platform };
+    })
+    .filter(Boolean);
 }
 
 const allEntries = [
